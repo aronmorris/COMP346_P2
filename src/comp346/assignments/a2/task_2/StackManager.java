@@ -81,8 +81,17 @@ public class StackManager {
 			System.out.println("Consumer thread [TID=" + this.iTID + "] starts executing.");
 			for (int i = 0; i < StackManager.iThreadSteps; i++) {
 				// Insert your code in the following:
-				// ...
-				// ...
+				try {
+					if (stack.pick() != '$') { //trying to consume a nothing, stack is empty
+						continue;
+					}
+					else {
+						copy = stack.pop();
+					}
+				} catch (CharStackEmptyException e) {
+					
+					e.printStackTrace();
+				}
 				System.out.println("Consumer thread [TID=" + this.iTID + "] pops character =" + this.copy);
 			}
 			System.out.println("Consumer thread [TID=" + this.iTID + "] terminates.");
@@ -102,11 +111,11 @@ public class StackManager {
 					
 					char c = stack.pick();
 					
-					if (c == 'e') { //case: stack is full
-						continue;
+					if (stack.getAt(stack.getTop()) == '$') { //stack is full, no good picking it here
+						continue;									//c - 6 = full alphabet by CharStack.MAX_SIZE definition
 					}
 					else {
-						stack.push(c++);
+						stack.push((char) (c+1));
 					}
 					
 				} catch (CharStackEmptyException e) {
@@ -114,6 +123,9 @@ public class StackManager {
 					e.printStackTrace();
 				} catch (CharStackFullException e) {
 					System.err.println("Stack is full, cannot push new value.");
+					e.printStackTrace();
+				} catch (CharStackInvalidAccessException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				System.out.println("Producer thread [TID=" + this.iTID + "] pushes character =" + this.block);
@@ -132,8 +144,23 @@ public class StackManager {
 				// Insert your code in the following. Note that the stack state
 				// must be
 				// printed in the required format.
-				// ...
-				// ...
+				
+				int size = stack.getTop();
+					
+				System.out.printf("Stack S = (");
+				
+				for (int j = 0; j <= size; j++) {
+					try {
+						System.out.printf("[%c]", stack.getAt(j));
+					} catch (CharStackInvalidAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				System.out.printf(")%n");
+				
+				
 			}
 		}
 	} // class CharStackProber

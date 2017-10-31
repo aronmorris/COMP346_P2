@@ -12,8 +12,8 @@ class CharStack {
 	 * Class variables
 	 */
 	private static int iSize = DEFAULT_SIZE;
-	private static int iTop = 3; // stack[0:9] with four defined values
-	private static char aCharStack[] = new char[] { 'a', 'b', 'c', 'd', '$', '$', '$', '$', '$', '$' };
+	private static int iTop = 3; 
+	private static char aCharStack[] = new char[] { 'a', 'b', 'c', 'd', '$', '$', '$', '$', '$', '$' }; // stack[0:9] with four defined values
 
 	// Default constructor
 	public CharStack() {
