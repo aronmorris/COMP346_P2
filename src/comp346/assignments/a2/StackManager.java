@@ -83,6 +83,11 @@ public class StackManager {
 				// Insert your code in the following:
 				// ...
 				// ...
+				try {	// pops out the item from the top of the stack
+					stack.pop();
+				} catch (CharStackEmptyException e) {	// taking proper care for exceptions
+					e.printStackTrace();
+				}
 				System.out.println("Consumer thread [TID=" + this.iTID + "] pops character =" + this.copy);
 			}
 			System.out.println("Consumer thread [TID=" + this.iTID + "] terminates.");
@@ -94,13 +99,18 @@ public class StackManager {
 
 	static class Producer extends BaseThread {
 		private char block; // block to be returned
-
+		// I can't get the block is for what?
 		public void run() {
 			System.out.println("Producer thread [TID=" + this.iTID + "] starts executing.");
 			for (int i = 0; i < StackManager.iThreadSteps; i++) {
 				// Insert your code in the following:
 				// ...
 				// ...
+				try {	// (i) it first checks for the character on the top pf the stack and then push the next higher
+					stack.push((char)(stack.getTop() + 1));	// character into the stack
+				} catch (CharStackFullException e) {	// handle the necessary exceptions
+					e.printStackTrace();
+				}
 				System.out.println("Producer thread [TID=" + this.iTID + "] pushes character =" + this.block);
 			}
 			System.out.println("Producer thread [TID=" + this.iTID + "] terminates.");
