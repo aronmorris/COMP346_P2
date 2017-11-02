@@ -12,9 +12,9 @@ class Semaphore {
 	}
 
 	public synchronized void Wait() {
-		this.value--;
-		while (this.value <= 0) {
-			try {
+		this.value--; 
+		while (this.value < 0) { //there was a bug here, where value <= 0 would catch threads trying to move through at value = 1 getting
+			try {				 //decremented and getting stuck forever when there was a legal number of flags.
 				wait();
 			} catch (InterruptedException e) {
 				System.out.println("Semaphore::Wait() - caught InterruptedException: " + e.getMessage());
@@ -36,7 +36,7 @@ class Semaphore {
 		this.Signal();
 	}
 	
-	public synchronized int getWaitingProcesses() { //returns waiting processes (0 = 1 waiting, -1 = 2 waiting)
+	public synchronized int getWaitingProcesses() { //returns waiting processes (0 = 1 waiting, -1 = 2 waiting
 		if (value > 0) {
 			return 0;
 		}

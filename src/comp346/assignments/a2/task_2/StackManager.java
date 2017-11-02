@@ -7,9 +7,11 @@ public class StackManager {
 												// threads
 	private static final int NUM_PROBERS = 1; // Number of threads dumping stack
 	private static int iThreadSteps = 3; // Number of steps they take
+	
 	// Semaphore declarations. Insert your code in the following:
-	static Semaphore mutex = new Semaphore(1);
-	static Semaphore stackSem = new Semaphore(1);
+	static Semaphore full = new Semaphore(0);
+	static Semaphore empty = new Semaphore(stack.getTop());
+		
 	// The main()
 
 	public static void main(String[] argv) {
@@ -83,11 +85,11 @@ public class StackManager {
 				// Insert your code in the following:
 				try {
 					
-					stackSem.Wait();
 					
-					if (stack.pick() == '$') { //trying to consume a nothing, stack is empty
-						stackSem.Signal();
-						continue;
+					full.Wait();
+					
+					if (stack.getTop() == -1) { //trying to consume a nothing, stack is empty
+						System.out.println("EMPTY STACK");
 					}
 					else {
 						copy = stack.pop(); //retrieve removed element for logging
@@ -96,9 +98,12 @@ public class StackManager {
 					
 					e.printStackTrace();
 				} finally {
-					stackSem.Signal();
+					
+					System.out.println("Consumer thread [TID=" + this.iTID + "] pops character =" + this.copy);
+					
+					empty.Signal();
+	
 				}
-				System.out.println("Consumer thread [TID=" + this.iTID + "] pops character =" + this.copy);
 			}
 			System.out.println("Consumer thread [TID=" + this.iTID + "] terminates.");
 		}
@@ -115,18 +120,14 @@ public class StackManager {
 			for (int i = 0; i < StackManager.iThreadSteps; i++) {
 				try {
 					
-					stackSem.Wait();
 					
-					if (stack.getTop() == -1) {
-						stack.push('a');
-						stackSem.Signal();
-						continue;
-					}
+					empty.Wait();
 					
 					block = stack.pick();
 					
-		
-					stack.push((char) (block + 1));
+					block += 1;
+				
+					stack.push((char) (block));
 		
 					
 				} catch (CharStackEmptyException e) {
@@ -136,10 +137,13 @@ public class StackManager {
 					System.err.println("Stack is full, cannot push new value.");
 					e.printStackTrace();
 				} finally {
-					stackSem.Signal();
+					
+					System.out.println("Producer thread [TID=" + this.iTID + "] pushes character = " + this.block);
+					
+					full.Signal();
+					
 				}
 				
-				System.out.println("Producer thread [TID=" + this.iTID + "] pushes character = " + this.block);
 			}
 			
 			System.out.println("Producer thread [TID=" + this.iTID + "] terminates.");
@@ -157,7 +161,7 @@ public class StackManager {
 				// Insert your code in the following. Note that the stack state
 				// must be
 				// printed in the required format.
-				
+								
 				int size = stack.getTop();
 					
 				System.out.printf("Stack S = (");
@@ -180,7 +184,7 @@ public class StackManager {
 				
 				System.out.printf(")%n");
 				
-				
+				//stackSem.Signal();
 			}
 		}
 	} // class CharStackProber
