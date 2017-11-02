@@ -8,8 +8,8 @@ public class StackManager {
 	private static final int NUM_PROBERS = 1; // Number of threads dumping stack
 	private static int iThreadSteps = 3; // Number of steps they take
 	// Semaphore declarations. Insert your code in the following:
-	Semaphore mutex = new Semaphore(1);
-	Semaphore stackSem = new Semaphore(1);
+	static Semaphore mutex = new Semaphore(1);
+	static Semaphore stackSem = new Semaphore(1);
 	// The main()
 
 	public static void main(String[] argv) {
@@ -82,15 +82,21 @@ public class StackManager {
 			for (int i = 0; i < StackManager.iThreadSteps; i++) {
 				// Insert your code in the following:
 				try {
-					if (stack.pick() != '$') { //trying to consume a nothing, stack is empty
+					
+					stackSem.Wait();
+					
+					if (stack.pick() == '$') { //trying to consume a nothing, stack is empty
+						stackSem.Signal();
 						continue;
 					}
 					else {
-						copy = stack.pop();
+						copy = stack.pop(); //retrieve removed element for logging
 					}
 				} catch (CharStackEmptyException e) {
 					
 					e.printStackTrace();
+				} finally {
+					stackSem.Signal();
 				}
 				System.out.println("Consumer thread [TID=" + this.iTID + "] pops character =" + this.copy);
 			}
@@ -109,29 +115,36 @@ public class StackManager {
 			for (int i = 0; i < StackManager.iThreadSteps; i++) {
 				try {
 					
-					char c = stack.pick();
+					stackSem.Wait();
 					
-					if (stack.getAt(stack.getTop()) == '$') { //stack is full, no good picking it here
-						continue;									//c - 6 = full alphabet by CharStack.MAX_SIZE definition
+					if (stack.getTop() == -1) {
+						stack.push('a');
+						stackSem.Signal();
+						continue;
 					}
-					else {
-						stack.push((char) (c+1));
-					}
+					
+					block = stack.pick();
+					
+		
+					stack.push((char) (block + 1));
+		
 					
 				} catch (CharStackEmptyException e) {
-					System.err.println("Stack is empty, cannot read value.");
+					System.err.println("Stack is empty, cannot read value.\n");
 					e.printStackTrace();
 				} catch (CharStackFullException e) {
 					System.err.println("Stack is full, cannot push new value.");
 					e.printStackTrace();
-				} catch (CharStackInvalidAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} finally {
+					stackSem.Signal();
 				}
-				System.out.println("Producer thread [TID=" + this.iTID + "] pushes character =" + this.block);
+				
+				System.out.println("Producer thread [TID=" + this.iTID + "] pushes character = " + this.block);
 			}
+			
 			System.out.println("Producer thread [TID=" + this.iTID + "] terminates.");
 		}
+		
 	} // class Producer
 	/*
 	 * Inner class CharStackProber to dump stack contents
@@ -153,7 +166,14 @@ public class StackManager {
 					try {
 						System.out.printf("[%c]", stack.getAt(j));
 					} catch (CharStackInvalidAccessException e) {
-						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				for (int j = stack.getTop() + 1; j < stack.getSize(); j++) {
+					try {
+						System.out.printf("[%c]", stack.getAt(j));
+					} catch (CharStackInvalidAccessException e) {
 						e.printStackTrace();
 					}
 				}

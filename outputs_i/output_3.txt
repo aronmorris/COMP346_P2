@@ -1,0 +1,18 @@
+Main thread starts executing.
+Initial value of top = 3.
+Initial value of stack top = d.
+Main thread will now fork several threads.
+Two Consumer threads have been created.
+Two Producer threads have been created.
+One CharStackProber thread has been created.
+Consumer thread [TID=1] starts executing.
+Producer thread [TID=3] starts executing.
+Consumer thread [TID=2] starts executing.
+Producer thread [TID=4] starts executing.
+CharStackProber thread [TID=5] starts executing.
+Stack S = ([a][b][c][d][$][$][$][$][$][$])
+Stack S = ([a][b][c][d][$][$][$][$][$][$])
+Stack S = ([a][b][c][d][$][$][$][$][$][$])
+Stack S = ([a][b][c][d][$][$][$][$][$][$])
+Stack S = ([a][b][c][d][$][$][$][$][$][$])
+Stack S = ([a][b][c][d][$][$][$][$][$][$])
