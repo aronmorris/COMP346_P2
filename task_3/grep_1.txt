@@ -1,0 +1,6 @@
+Stack S = ([a][b][c][d][e][f][g][h][$][$])
+Stack S = ([a][b][c][d][e][f][g][h][i][$])
+Stack S = ([a][b][c][d][e][f][g][h][i][$])
+Stack S = ([a][b][c][d][e][f][g][h][i][j])
+Stack S = ([a][b][c][d][e][f][g][h][i][j])
+Stack S = ([a][b][c][d][e][f][g][h][i][j])
