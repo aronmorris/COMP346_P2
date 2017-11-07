@@ -3,17 +3,20 @@ package comp346.assignments.a2.task_2;
 public class StackManager {
 	// The Stack
 	private static CharStack stack = new CharStack();
+	@SuppressWarnings("unused")
 	private static final int NUM_ACQREL = 4; // Number of Producer/Consumer
 												// threads
+	@SuppressWarnings("unused")
 	private static final int NUM_PROBERS = 1; // Number of threads dumping stack
 	private static int iThreadSteps = 3; // Number of steps they take
 	
 	// Semaphore declarations. Insert your code in the following:
-	static Semaphore full = new Semaphore(0);
-	static Semaphore empty = new Semaphore(stack.getTop());
+	static Semaphore full = new Semaphore(1);
+	static Semaphore empty = new Semaphore(stack.getSize());
 		
 	// The main()
 
+	@SuppressWarnings("static-access")
 	public static void main(String[] argv) {
 		// Some initial stats...
 		try {
@@ -81,32 +84,42 @@ public class StackManager {
 
 		public void run() {
 			System.out.println("Consumer thread [TID=" + this.iTID + "] starts executing.");
+			
 			for (int i = 0; i < StackManager.iThreadSteps; i++) {
 				// Insert your code in the following:
+				
 				try {
-					
 					
 					full.Wait();
 					
-					if (stack.getTop() == -1) { //trying to consume a nothing, stack is empty
-						System.out.println("EMPTY STACK");
-					}
-					else {
-						copy = stack.pop(); //retrieve removed element for logging
-					}
-				} catch (CharStackEmptyException e) {
+					consume();
 					
+				} catch (CharStackEmptyException e) {
 					e.printStackTrace();
 				} finally {
 					
-					System.out.println("Consumer thread [TID=" + this.iTID + "] pops character =" + this.copy);
+					System.out.println("Consumer thread [TID=" + this.iTID + "] consumes character = " + this.copy);
 					
 					empty.Signal();
-	
 				}
+					
 			}
+			
 			System.out.println("Consumer thread [TID=" + this.iTID + "] terminates.");
 		}
+		
+		@SuppressWarnings("static-access")
+		private void consume() throws CharStackEmptyException {
+			
+			if (stack.getTop() == -1) { //trying to consume a nothing, stack is empty
+				System.out.println("EMPTY STACK");
+			}
+			else {
+				copy = stack.pop(); //retrieve removed element for logging
+			}
+		
+		}
+		
 	} // class Consumer
 	/*
 	 * Inner class Producer
@@ -118,16 +131,12 @@ public class StackManager {
 		public void run() {
 			System.out.println("Producer thread [TID=" + this.iTID + "] starts executing.");
 			for (int i = 0; i < StackManager.iThreadSteps; i++) {
+				
 				try {
-					
 					
 					empty.Wait();
 					
-					block = stack.pick();
-					
-					block += 1;
-				
-					stack.push((char) (block));
+					produce();
 		
 					
 				} catch (CharStackEmptyException e) {
@@ -140,13 +149,23 @@ public class StackManager {
 					
 					System.out.println("Producer thread [TID=" + this.iTID + "] pushes character = " + this.block);
 					
-					full.Signal();
+					full.Signal(); //this is in the finally block to ensure it can never be missed due to an error being thrown
 					
 				}
 				
 			}
 			
 			System.out.println("Producer thread [TID=" + this.iTID + "] terminates.");
+		}
+		
+		@SuppressWarnings("static-access")
+		private void produce() throws CharStackEmptyException, CharStackFullException {
+			
+			block = stack.pick();
+			
+			block += 1;
+		
+			stack.push((char) (block));
 		}
 		
 	} // class Producer
@@ -158,6 +177,9 @@ public class StackManager {
 		public void run() {
 			System.out.println("CharStackProber thread [TID=" + this.iTID + "] starts executing.");
 			for (int i = 0; i < 2 * StackManager.iThreadSteps; i++) {
+				
+				
+				
 				// Insert your code in the following. Note that the stack state
 				// must be
 				// printed in the required format.
