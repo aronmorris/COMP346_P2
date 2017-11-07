@@ -178,33 +178,48 @@ public class StackManager {
 			System.out.println("CharStackProber thread [TID=" + this.iTID + "] starts executing.");
 			for (int i = 0; i < 2 * StackManager.iThreadSteps; i++) {
 				
-				
-				
 				// Insert your code in the following. Note that the stack state
 				// must be
 				// printed in the required format.
-								
-				int size = stack.getTop();
-					
-				System.out.printf("Stack S = (");
 				
+				/*
+				 * The stack is first copied to preserve changes that have been made to it so far, as string
+				 * assembly & printing is slower than adding/removing from it and the stack may change during
+				 * the process (synchronize not being allowed in this assignment for this class).
+				 * 
+				 * The prober uses a StringBuilder to assemble a string and then print the whole of the thing
+				 * at once so the output cannot be corrupted by another thread being scheduled in the middle of
+				 * a printing loop.
+				 */
+				CharStack copy = stack;
+				
+				StringBuilder sb = new StringBuilder();
+				
+				int size = copy.getTop();
+					
+				sb.append("Stack S = (");
+				
+				//this loop prints the letters
 				for (int j = 0; j <= size; j++) {
 					try {
-						System.out.printf("[%c]", stack.getAt(j));
+						sb.append("["+ copy.getAt(j) +"]");
 					} catch (CharStackInvalidAccessException e) {
 						e.printStackTrace();
 					}
 				}
 				
-				for (int j = stack.getTop() + 1; j < stack.getSize(); j++) {
+				//this loop prints the $ tail of the copy and no letters
+				for (int j = copy.getTop() + 1; j < copy.getSize(); j++) {
 					try {
-						System.out.printf("[%c]", stack.getAt(j));
+						sb.append("["+ copy.getAt(j) +"]");
 					} catch (CharStackInvalidAccessException e) {
 						e.printStackTrace();
 					}
 				}
 				
-				System.out.printf(")%n");
+				sb.append(")");
+				
+				System.out.println(sb.toString());
 				
 				//stackSem.Signal();
 			}
